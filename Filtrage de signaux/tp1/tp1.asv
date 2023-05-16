@@ -1,0 +1,87 @@
+[x, fe] = audioread("enrose.wav");
+
+x = x(:,1);
+
+N = length(x);
+t = [0:N-1]/fe;
+f = [0:N-1]*fe/N; f = f-fe/2;
+
+figure(1),
+plot(t,x)
+grid
+ylabel('Son original')
+title('Signal temporel original')
+
+[X,x]=decoupage(x,fe);
+x1 = reconstruction(X);
+
+N1 = length(x1);
+t1 = [0:N1-1]/fe;
+
+figure(2),
+plot(t1,x1)
+grid
+ylabel('Son reconstruit')
+title('Signal temporel reconstruit')
+
+%%bruit blanc gaussien
+signal_test
+
+Ny = length(sn);
+ty = [0:Ny-1]/fe;
+
+figure(3),
+plot(ty,sn)
+grid
+ylabel('Son filtrer')
+title('Signal temporel filter')
+
+Ntest = length(x_test);
+ttest = [0:Ntest-1]/fe;
+
+figure(4),
+plot(ttest,x_test)
+grid
+ylabel('Son test avec les craquements')
+title('Signal temporel avec des craquements')
+
+
+P=10;
+
+aflip = fliplr(a);
+n0 = detection(x_test);
+
+lig = zeros(1,15+P);
+col = zeros(1,15+2*P);
+for i=1:length(a)
+    col(i) = aflip(i);
+    lig(i) = aflip(i);
+end
+x_cor = x_test;
+m=15;
+T = toeplitz(lig,col);
+
+A0 = T(:,1:length(a)-1); 
+B = T(:,length(a):length(a)+m-1);
+A1 = T(:,length(a)+m:length(T));
+
+x_barre = zeros(1,m+2*P);
+for i_n0=1:length(n0)
+    for ko = n0(i_n0)-(m-1)/2:n0(i_n0)+(m-1)/2
+        x0= x_test(k0-P:k0-1);
+        x2= x_test(k0+m:k0+m+P-1);
+        ypinv = -pinv(B);
+        Ax0 = A0.*x0;
+        Ax1 = A1.*x1;
+        y_barre = -pinv(B).*(A0*x0 +A1*x1);
+        
+
+    end
+end
+
+plot(x_test)
+hold on
+plot(x_cor,'r')
+hold off
+%soundsc(x,fe)
+% Edith Piaf- la vie en rose 
